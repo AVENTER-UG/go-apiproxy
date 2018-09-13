@@ -1,22 +1,43 @@
 package main
 
 import (
-	"fmt"
-	_ "./api"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	_ "net/http/pprof"
+	"net/url"
 )
 
-var API_SERVERPORT string
-var CONFIG_FILE string
-var DATASTORE_DIR string
+var API_PROXYPORT string
+var API_PROXYBIND string
+var API_URL string
+var API_TOKEN string
+
+var MinVersion string
+
+var srv http.Server
+
+type handle struct {
+	reverseProxy string
+}
+
+func (this *handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Println(this.reverseProxy + " " + r.Method + " " + r.URL.String() + " " + r.Proto + " " + r.UserAgent())
+	remote, err := url.Parse(this.reverseProxy)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(remote)
+	r.Host = remote.Host
+	proxy.ServeHTTP(w, r)
+}
 
 func main() {
-	fmt.Println("API_SERVERPORT=", API_SERVERPORT)
-	fmt.Println("CONFIG_FILE=", CONFIG_FILE)
-	fmt.Println("DATASTORE_DIR=", DATASTORE_DIR)
-
-	log.Println("Listening..." + API_SERVERPORT)
-	http.ListenAndServe(API_SERVERPORT, nil)
+	log.Println("GO-AVPROXY build"+MinVersion, API_PROXYBIND, API_PROXYPORT, API_URL)
+	srv.Handler = &handle{reverseProxy: API_URL}
+	srv.Addr = API_PROXYBIND + ":" + API_PROXYPORT
+	if err := srv.ListenAndServe(); err != nil {
+		log.Fatalln("ListenAndServe: ", err)
+	}
 }
