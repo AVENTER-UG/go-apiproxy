@@ -1,13 +1,10 @@
 package main
 
-import (
-	"flag"
-)
+import "os"
 
 func init() {
-	flag.StringVar(&API_PROXYPORT, "port", "10777", "api server port")
-	flag.StringVar(&API_PROXYBIND, "bind", "127.0.0.1", "api server listen")
-	flag.StringVar(&API_URL, "url", "http://test/api/v1/", "the api target")
-	flag.StringVar(&API_TOKEN, "token", "token", "the api token to authenticate")
-	flag.Parse()
+	API_TOKEN = os.Getenv("API_TOKEN")
+	API_PROXYBIND = os.Getenv("API_PROXYBIND")
+	API_PROXYPORT = os.Getenv("API_PROXYPORT")
+	API_URL = os.Getenv("API_URL")
 }

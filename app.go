@@ -36,7 +36,7 @@ func (this *handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Println("GO-AVPROXY build"+MinVersion, API_PROXYBIND, API_PROXYPORT, API_URL)
+	log.Println("GO-APIPROXY build"+MinVersion, API_PROXYBIND, API_PROXYPORT, API_URL)
 	srv.Handler = &handle{reverseProxy: API_URL}
 	srv.Addr = API_PROXYBIND + ":" + API_PROXYPORT
 	if err := srv.ListenAndServe(); err != nil {
