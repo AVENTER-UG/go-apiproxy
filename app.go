@@ -31,7 +31,10 @@ func (this *handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	proxy := httputil.NewSingleHostReverseProxy(remote)
 	r.Host = remote.Host
-	r.Header.Set("Authorization", fmt.Sprintf("Bearer %v", API_TOKEN))
+
+	if len(API_TOKEN) > 0 {
+		r.Header.Set("Authorization", fmt.Sprintf("Bearer %v", API_TOKEN))
+	}
 	proxy.ServeHTTP(w, r)
 }
 
