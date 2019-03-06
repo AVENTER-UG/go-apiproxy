@@ -1,4 +1,16 @@
-FROM golang:1.11.0-alpine3.8
+FROM golang:alpine as builder
+
+WORKDIR /build
+
+COPY . /build/
+
+RUN apk add git && \
+    go get -d
+
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X main.MinVersion=`date -u +%Y%m%d%.H%M%S` -extldflags \"-static\"" -o main app.go init.go
+
+
+FROM alpine
 LABEL maintainer="Andreas Peters <support@aventer.biz>"
 
 ENV API_PROXYPORT=10777 
@@ -6,20 +18,14 @@ ENV API_PROXYBIND=0.0.0.0
 ENV API_URL=http://test/api/v1
 ENV API_TOKEN=
 
-COPY  . /src/
+RUN adduser -S -D -H -h /app appuser
 
-RUN apk update && \
-    apk add git gcc libc-dev && \
-    cd /src/ && \
-    go get -d 
+USER appuser
 
-RUN cd /src/ && \
-    go build -ldflags "-X main.MinVersion=`date -u +%Y%m%d%.H%M%S`" app.go init.go && \
-    cp app /  && \
-    rm -rf /src
+COPY --from=builder /build/main /app/
 
 EXPOSE 10777
 
-USER nobody
+WORKDIR "/app"
 
-CMD ["/app"]
+CMD ["./main"]
