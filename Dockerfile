@@ -18,6 +18,7 @@ ENV API_PROXYBIND=0.0.0.0
 ENV API_URL=http://test/api/v1
 ENV API_TOKEN=
 
+RUN apk add --no-cache ca-certificates
 RUN adduser -S -D -H -h /app appuser
 
 USER appuser
