@@ -58,7 +58,7 @@ update-gomod:
 	go mod tidy	
 
 seccheck:
-	gosec --exclude G104 --exclude-dir ./vendor ./... 
+	grype --add-cpes-if-none .
 
 sboom:
 	syft dir:. > sbom.txt
